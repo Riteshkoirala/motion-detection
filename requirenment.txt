@@ -1,9 +1,5 @@
-Note: you should have the python in the system/cmd.
-step 1: Download the zip file
-step 2: extract the file and go inside motionDetection again inside the motionDetection
-Step 3: then open the cmd from that folder then write this command in the terminal .\venv\Scripts\Activate
-Step 4: then run python peco.py
+after extraction and openning it run this command in terminal
+and note that you have upgraded pip and python
 
-
-command to run are exactly the same as given = .\venv\Scripts\Activate
-and                                          = python peco.py
+command : pip install opencv-python
+command : pip install pillow

@@ -99,16 +99,22 @@ def perform_object_detection(video_source=None):
         # Get the left half of the frame
         left_half_frame = frame[:, :desired_width // 2]
         if previous_frame is not None:
+            #this calculates the absolute difference between frames
             frame_delta = cv2.absdiff(previous_frame, gray_frame)
+            #applies binary thireshold tot he frame
             thresh = cv2.threshold(frame_delta, 30, 255, cv2.THRESH_BINARY)[1]
+            #applies binary thireshold tot he frame
             thresh = cv2.dilate(thresh, None, iterations=2)
+            #perform dilution
             contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
+            #applying loop in the contour
             for contour in contours:
+                #checkoing if it is above then 500
                 if cv2.contourArea(contour) > 500:
+                    #calculation boundries of the detected motion
                     (x, y, w, h) = cv2.boundingRect(contour)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
-
+          #draw the color frame in the video
         previous_frame = gray_frame
         # Detect objects in the left half of the frame
         ClassIndex, confidence, bbox = detect_model.detect(frame, confThreshold=0.55)
