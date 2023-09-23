@@ -36,9 +36,10 @@ detect_model.setInputMean((127.5, 127.5, 127.5))
 # Enabling swapping of color channels in the input for the 'model'.
 detect_model.setInputSwapRB(True)
 
-
+previous_frame = None
 # Create a function to perform object and detection
 def perform_object_detection(video_source=None):
+    global previous_frame
     # Open the video file using the selected path from the GUI
     video_path = None  # Initialize video_path as None
     # Checking if the 'video_source' variable is not None before proceeding.
@@ -94,10 +95,21 @@ def perform_object_detection(video_source=None):
 
         # Resize the frame to the desired width and height
         frame = cv2.resize(frame, (desired_width, desired_height))
-
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         # Get the left half of the frame
         left_half_frame = frame[:, :desired_width // 2]
+        if previous_frame is not None:
+            frame_delta = cv2.absdiff(previous_frame, gray_frame)
+            thresh = cv2.threshold(frame_delta, 30, 255, cv2.THRESH_BINARY)[1]
+            thresh = cv2.dilate(thresh, None, iterations=2)
+            contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+            for contour in contours:
+                if cv2.contourArea(contour) > 500:
+                    (x, y, w, h) = cv2.boundingRect(contour)
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+
+        previous_frame = gray_frame
         # Detect objects in the left half of the frame
         ClassIndex, confidence, bbox = detect_model.detect(frame, confThreshold=0.55)
 
